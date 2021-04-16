@@ -33,6 +33,7 @@ export default class DruidDatasource {
     "selector": ['value'],
     "regex": ['pattern'],
     "javascript": ['function'],
+    "in": ['values'],
     "search": []
   };
 
@@ -275,7 +276,7 @@ export default class DruidDatasource {
   };
 
   getDimensionsAndMetrics(datasource) {
-    return this.get(DRUID_DATASOURCE_PATH + datasource).then(response => {
+    return this.get(DRUID_DATASOURCE_PATH + "/" + datasource).then(response => {
       return response.data;
     });
   };
@@ -348,9 +349,12 @@ export default class DruidDatasource {
 
   getMetricNames(aggregators, postAggregators) {
     const displayAggs = _.filter(aggregators, agg => {
-      return agg.type !== 'approxHistogramFold' && agg.hidden != true;
+      return agg.type !== 'approxHistogramFold' && agg.type !== 'filtered' && agg.hidden != true;
     });
-    return _.union(_.map(displayAggs, 'name'), _.map(postAggregators, 'name'));
+    const filteredAggs = _.filter(aggregators, agg => {
+      return agg.type === 'filtered' && agg.hidden != true;
+    });
+    return _.union(_.map(displayAggs, 'name'), _.map(postAggregators, 'name'), _.map(_.map(filteredAggs, 'aggregator'), 'name'));
   }
 
   formatTimestamp(ts) {
@@ -590,7 +594,12 @@ export default class DruidDatasource {
 
   replaceTemplateValues(obj, attrList) {
     const substitutedVals = attrList.map(attr => {
-      return this.templateSrv.replace(obj[attr]);
+
+      const replacedVal = this.templateSrv.replace(obj[attr]);
+      if ('values' === attr) {
+        return replacedVal.replace(/[{}]/g, "").split(",");
+      }
+      return replacedVal;
     });
     return _.assign(_.clone(obj, true), _.zipObject(attrList, substitutedVals));
   }

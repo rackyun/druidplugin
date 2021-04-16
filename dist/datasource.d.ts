@@ -15,6 +15,7 @@ export default class DruidDatasource {
         "selector": string[];
         "regex": string[];
         "javascript": string[];
+        "in": string[];
         "search": any[];
     };
     constructor(instanceSettings: any, $q: any, backendSrv: any, templateSrv: any);

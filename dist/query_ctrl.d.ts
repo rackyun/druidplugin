@@ -33,6 +33,7 @@ export declare class DruidQueryCtrl extends QueryCtrl {
         "selector": any;
         "regex": any;
         "javascript": any;
+        "in": any;
     };
     aggregatorValidators: {
         "count": (target: any) => string;
@@ -42,6 +43,7 @@ export declare class DruidQueryCtrl extends QueryCtrl {
         "approxHistogramFold": any;
         "hyperUnique": any;
         "thetaSketch": any;
+        "filtered": any;
     };
     postAggregatorValidators: {
         "arithmetic": any;
@@ -101,11 +103,13 @@ export declare class DruidQueryCtrl extends QueryCtrl {
     validateSelectorFilter(target: any): "Must provide dimension name for selector filter." | "Must provide dimension value for selector filter.";
     validateJavascriptFilter(target: any): "Must provide dimension name for javascript filter." | "Must provide func value for javascript filter.";
     validateRegexFilter(target: any): "Must provide dimension name for regex filter." | "Must provide pattern for regex filter.";
+    validateInFilter(target: any): "Must provide dimension name for in filter." | "Must provide values for in filter";
     validateCountAggregator(target: any): string;
     validateCardinalityAggregator(type: any, target: any): string;
     validateSimpleAggregator(type: any, target: any): string;
     validateApproxHistogramFoldAggregator(target: any): string;
     validateThetaSketchAggregator(target: any): string;
+    validateFilteredAggregator(target: any): "Must provide an output name for filtered aggregator.aggregator" | "Must provide a metric name for filtered aggregator.aggregator";
     validateSimplePostAggregator(type: any, target: any): string;
     validateMaxPostAggregator(target: any): string;
     validateMinPostAggregator(target: any): string;

@@ -37,7 +37,8 @@ export class DruidQueryCtrl extends QueryCtrl {
   filterValidators = {
     "selector": this.validateSelectorFilter.bind(this),
     "regex": this.validateRegexFilter.bind(this),
-    "javascript": this.validateJavascriptFilter.bind(this)
+    "javascript": this.validateJavascriptFilter.bind(this),
+    "in": this.validateInFilter.bind(this)
   };
   aggregatorValidators = {
     "count": this.validateCountAggregator,
@@ -46,7 +47,8 @@ export class DruidQueryCtrl extends QueryCtrl {
     "doubleSum": _.partial(this.validateSimpleAggregator.bind(this), 'doubleSum'),
     "approxHistogramFold": this.validateApproxHistogramFoldAggregator.bind(this),
     "hyperUnique": _.partial(this.validateSimpleAggregator.bind(this), 'hyperUnique'),
-    "thetaSketch": this.validateThetaSketchAggregator.bind(this)
+    "thetaSketch": this.validateThetaSketchAggregator.bind(this),
+    "filtered": this.validateFilteredAggregator.bind(this)
   };
   postAggregatorValidators = {
     "arithmetic": this.validateArithmeticPostAggregator.bind(this),
@@ -451,6 +453,18 @@ export class DruidQueryCtrl extends QueryCtrl {
     return null;
   }
 
+  validateInFilter(target) {
+    if (!target.currentFilter.dimension) {
+      return "Must provide dimension name for in filter.";
+    }
+
+    if (!target.currentFilter.values) {
+      return "Must provide values for in filter"
+    }
+
+    return null;
+  }
+
   validateCountAggregator(target) {
     if (!target.currentAggregator.name) {
       return "Must provide an output name for count aggregator.";
@@ -488,6 +502,16 @@ export class DruidQueryCtrl extends QueryCtrl {
   validateThetaSketchAggregator(target) {
     const err = this.validateSimpleAggregator('thetaSketch', target);
     if (err) { return err; }
+    return null;
+  }
+
+  validateFilteredAggregator(target) {
+    if (!target.currentAggregator.aggregator.name) {
+      return "Must provide an output name for filtered aggregator.aggregator";
+    }
+    if (!target.currentAggregator.aggregator.fieldName) {
+      return "Must provide a metric name for filtered aggregator.aggregator";
+    }
     return null;
   }
 

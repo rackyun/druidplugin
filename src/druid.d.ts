@@ -81,7 +81,7 @@ export interface DruidFilterSelect {
 }
 
 export interface DruidFilterIn {
-  type: string;
+  type: 'in';
   dimension: string;
   values: Array<string>;
 }

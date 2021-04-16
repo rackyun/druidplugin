@@ -1,5 +1,5 @@
 {
-  "name": "paypal-druid-plugin",
+  "name": "rack-druid-plugin",
   "version": "4.0.0",
   "description": "Grafana plugin for Druid real-time OLAP database",
   "main": "index.js",

@@ -34,6 +34,7 @@ System.register(["lodash", "moment", "app/core/utils/datemath"], function (expor
                         "selector": ['value'],
                         "regex": ['pattern'],
                         "javascript": ['function'],
+                        "in": ['values'],
                         "search": []
                     };
                     this.name = instanceSettings.name;
@@ -231,7 +232,7 @@ System.register(["lodash", "moment", "app/core/utils/datemath"], function (expor
                 };
                 ;
                 DruidDatasource.prototype.getDimensionsAndMetrics = function (datasource) {
-                    return this.get(DRUID_DATASOURCE_PATH + datasource).then(function (response) {
+                    return this.get(DRUID_DATASOURCE_PATH + "/" + datasource).then(function (response) {
                         return response.data;
                     });
                 };
@@ -300,9 +301,12 @@ System.register(["lodash", "moment", "app/core/utils/datemath"], function (expor
                 };
                 DruidDatasource.prototype.getMetricNames = function (aggregators, postAggregators) {
                     var displayAggs = lodash_1.default.filter(aggregators, function (agg) {
-                        return agg.type !== 'approxHistogramFold' && agg.hidden != true;
+                        return agg.type !== 'approxHistogramFold' && agg.type !== 'filtered' && agg.hidden != true;
                     });
-                    return lodash_1.default.union(lodash_1.default.map(displayAggs, 'name'), lodash_1.default.map(postAggregators, 'name'));
+                    var filteredAggs = lodash_1.default.filter(aggregators, function (agg) {
+                        return agg.type === 'filtered' && agg.hidden != true;
+                    });
+                    return lodash_1.default.union(lodash_1.default.map(displayAggs, 'name'), lodash_1.default.map(postAggregators, 'name'), lodash_1.default.map(lodash_1.default.map(filteredAggs, 'aggregator'), 'name'));
                 };
                 DruidDatasource.prototype.formatTimestamp = function (ts) {
                     return moment_1.default(ts).format('X') * 1000;
@@ -449,7 +453,11 @@ System.register(["lodash", "moment", "app/core/utils/datemath"], function (expor
                 DruidDatasource.prototype.replaceTemplateValues = function (obj, attrList) {
                     var _this = this;
                     var substitutedVals = attrList.map(function (attr) {
-                        return _this.templateSrv.replace(obj[attr]);
+                        var replacedVal = _this.templateSrv.replace(obj[attr]);
+                        if ('values' === attr) {
+                            return replacedVal.replace(/[{}]/g, "").split(",");
+                        }
+                        return replacedVal;
                     });
                     return lodash_1.default.assign(lodash_1.default.clone(obj, true), lodash_1.default.zipObject(attrList, substitutedVals));
                 };

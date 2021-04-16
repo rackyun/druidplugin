@@ -40,7 +40,8 @@ System.register(["lodash", "app/plugins/sdk", "./css/query_editor.css!"], functi
                     _this.filterValidators = {
                         "selector": _this.validateSelectorFilter.bind(_this),
                         "regex": _this.validateRegexFilter.bind(_this),
-                        "javascript": _this.validateJavascriptFilter.bind(_this)
+                        "javascript": _this.validateJavascriptFilter.bind(_this),
+                        "in": _this.validateInFilter.bind(_this)
                     };
                     _this.aggregatorValidators = {
                         "count": _this.validateCountAggregator,
@@ -49,7 +50,8 @@ System.register(["lodash", "app/plugins/sdk", "./css/query_editor.css!"], functi
                         "doubleSum": lodash_1.default.partial(_this.validateSimpleAggregator.bind(_this), 'doubleSum'),
                         "approxHistogramFold": _this.validateApproxHistogramFoldAggregator.bind(_this),
                         "hyperUnique": lodash_1.default.partial(_this.validateSimpleAggregator.bind(_this), 'hyperUnique'),
-                        "thetaSketch": _this.validateThetaSketchAggregator.bind(_this)
+                        "thetaSketch": _this.validateThetaSketchAggregator.bind(_this),
+                        "filtered": _this.validateFilteredAggregator.bind(_this)
                     };
                     _this.postAggregatorValidators = {
                         "arithmetic": _this.validateArithmeticPostAggregator.bind(_this),
@@ -387,6 +389,15 @@ System.register(["lodash", "app/plugins/sdk", "./css/query_editor.css!"], functi
                     }
                     return null;
                 };
+                DruidQueryCtrl.prototype.validateInFilter = function (target) {
+                    if (!target.currentFilter.dimension) {
+                        return "Must provide dimension name for in filter.";
+                    }
+                    if (!target.currentFilter.values) {
+                        return "Must provide values for in filter";
+                    }
+                    return null;
+                };
                 DruidQueryCtrl.prototype.validateCountAggregator = function (target) {
                     if (!target.currentAggregator.name) {
                         return "Must provide an output name for count aggregator.";
@@ -419,6 +430,15 @@ System.register(["lodash", "app/plugins/sdk", "./css/query_editor.css!"], functi
                     var err = this.validateSimpleAggregator('thetaSketch', target);
                     if (err) {
                         return err;
+                    }
+                    return null;
+                };
+                DruidQueryCtrl.prototype.validateFilteredAggregator = function (target) {
+                    if (!target.currentAggregator.aggregator.name) {
+                        return "Must provide an output name for filtered aggregator.aggregator";
+                    }
+                    if (!target.currentAggregator.aggregator.fieldName) {
+                        return "Must provide a metric name for filtered aggregator.aggregator";
                     }
                     return null;
                 };
